@@ -4,14 +4,9 @@ package example
 
 import (
 	"context"
-
 	"github.com/cloudwego/hertz/pkg/app"
 	example "github.com/xueyyyyyyu/hello-hertz/biz/model/hello/example"
 )
-
-// handler path: biz/handler/hello/example/hello_service.go
-// 其中 "hello/example" 是 thrift idl 的 namespace
-// "hello_service.go" 是 thrift idl 中 service 的名字，所有 service 定义的方法都会生成在这个文件中
 
 // HelloMethod .
 // @router /hello [GET]
@@ -28,6 +23,26 @@ func HelloMethod(ctx context.Context, c *app.RequestContext) {
 
 	// 你可以修改整个函数的逻辑，而不仅仅局限于当前模板
 	resp.RespBody = "hello," + req.Name // 添加的逻辑
+
+	c.JSON(200, resp)
+}
+
+// OtherMethod .
+// @router /other [POST]
+func OtherMethod(ctx context.Context, c *app.RequestContext) {
+	var err error
+	// example.OtherReq 对应的 model 文件也会重新生成
+	var req example.OtherReq
+	err = c.BindAndValidate(&req)
+	if err != nil {
+		c.String(400, err.Error())
+		return
+	}
+
+	resp := new(example.OtherResp)
+
+	// 增加的逻辑
+	resp.Resp = "Other method: " + req.Other
 
 	c.JSON(200, resp)
 }

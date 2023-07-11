@@ -18,4 +18,6 @@ func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
 	root.GET("/hello", append(_hellomethodMw(), example.HelloMethod)...)
+	root.GET("/new", append(_newmethodMw(), example.NewMethod)...)
+	root.POST("/other", append(_othermethodMw(), example.OtherMethod)...)
 }
