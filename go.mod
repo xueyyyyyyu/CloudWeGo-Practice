@@ -2,7 +2,10 @@ module github.com/xueyyyyyyu/hello-hertz
 
 go 1.20
 
-require github.com/cloudwego/hertz v0.6.6
+require (
+	github.com/apache/thrift v0.0.0-00010101000000-000000000000
+	github.com/cloudwego/hertz v0.6.6
+)
 
 require (
 	github.com/bytedance/go-tagexpr/v2 v2.9.2 // indirect
