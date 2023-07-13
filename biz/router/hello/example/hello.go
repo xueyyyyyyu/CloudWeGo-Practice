@@ -17,7 +17,9 @@ import (
 func Register(r *server.Hertz) {
 
 	root := r.Group("/", rootMw()...)
+	root.POST("/add-student-info", append(_writemethodMw(), example.WriteMethod)...)
 	root.GET("/hello", append(_hellomethodMw(), example.HelloMethod)...)
 	root.GET("/new", append(_newmethodMw(), example.NewMethod)...)
 	root.POST("/other", append(_othermethodMw(), example.OtherMethod)...)
+	root.GET("/query", append(_querymethodMw(), example.QueryMethod)...)
 }

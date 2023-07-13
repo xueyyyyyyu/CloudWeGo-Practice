@@ -25,3 +25,13 @@ func _othermethodMw() []app.HandlerFunc {
 	// your code...
 	return nil
 }
+
+func _querymethodMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}
+
+func _writemethodMw() []app.HandlerFunc {
+	// your code...
+	return nil
+}

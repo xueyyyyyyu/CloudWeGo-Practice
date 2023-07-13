@@ -31,13 +31,24 @@ struct OtherResp {
 */
 
 
-struct StudentReq {
-    1: i32 ID (api.query="name");
+struct AddStudentInfoReq {
+    1: i32 ID (api.body="ID");
+    2: string name (api.body="Name");
+    3: string favourite (api.body="Facourite");
 }
 
-struct StudentResp {
-    1: string Student (api.body="student")
+struct AddStudentInfoResp {
+    1: string resp;
 }
+
+struct QueryReq{
+    1: i32 ID (api.query="id");
+}
+
+struct QueryResp {
+    1: string resp (api.body="res");
+}
+
 
 
 service HelloService {
@@ -50,6 +61,6 @@ service NewService {
 }
 
 service StudentServive {
-    StudentResp QueryMethod(1: StudentReq request) (api.get="/student");
-    StudentResp WriteMethod(1: StudentReq request) (api.post="/student");
+    QueryResp QueryMethod(1: QueryReq request) (api.get="/query");
+    AddStudentInfoResp WriteMethod(1: AddStudentInfoReq request) (api.post="/add-student-info");
 }
