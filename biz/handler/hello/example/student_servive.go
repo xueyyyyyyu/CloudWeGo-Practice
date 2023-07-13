@@ -4,6 +4,7 @@ package example
 
 import (
 	"context"
+	"strconv"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
@@ -26,7 +27,7 @@ func QueryMethod(ctx context.Context, c *app.RequestContext) {
 
 	resp := new(example.QueryResp)
 
-	resp.Resp = "id: " + string(rune(int(req.ID))) + ", name: " + id2Name[int(req.ID)] +
+	resp.Resp = "id: " + strconv.Itoa(int(req.ID)) + ", name: " + id2Name[int(req.ID)] +
 		", favourite: " + id2Favourite[int(req.ID)]
 
 	c.JSON(consts.StatusOK, resp)
@@ -42,6 +43,9 @@ func WriteMethod(ctx context.Context, c *app.RequestContext) {
 		c.String(consts.StatusBadRequest, err.Error())
 		return
 	}
+
+	id2Name[int(req.ID)] = req.Name
+	id2Favourite[int(req.ID)] = req.Favourite
 
 	resp := new(example.AddStudentInfoResp)
 

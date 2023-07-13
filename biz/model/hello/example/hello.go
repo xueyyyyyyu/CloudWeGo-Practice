@@ -573,7 +573,7 @@ func (p *OtherResp) String() string {
 type AddStudentInfoReq struct {
 	ID        int32  `thrift:"ID,1" form:"ID" json:"ID"`
 	Name      string `thrift:"name,2" form:"Name" json:"Name"`
-	Favourite string `thrift:"favourite,3" form:"Facourite" json:"Facourite"`
+	Favourite string `thrift:"favourite,3" form:"Favourite" json:"Favourite"`
 }
 
 func NewAddStudentInfoReq() *AddStudentInfoReq {

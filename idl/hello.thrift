@@ -34,7 +34,7 @@ struct OtherResp {
 struct AddStudentInfoReq {
     1: i32 ID (api.body="ID");
     2: string name (api.body="Name");
-    3: string favourite (api.body="Facourite");
+    3: string favourite (api.body="Favourite");
 }
 
 struct AddStudentInfoResp {
