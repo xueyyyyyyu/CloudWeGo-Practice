@@ -4,10 +4,13 @@ package demo
 
 import (
 	"context"
+	kclient "github.com/cloudwego/kitex/client"
+	kdemo "github.com/xueyyyyyyu/httpsvr/kitex_gen/demo"
+	"github.com/xueyyyyyyu/httpsvr/kitex_gen/demo/studentservice"
 
 	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	demo "github.com/xueyyyyyyu/httpsvr/biz/model/demo"
+	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 )
 
 // Register .
@@ -37,7 +40,18 @@ func Query(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(demo.Student)
+	cli, err := studentservice.NewClient("student-server",
+		kclient.WithHostPorts("127.0.0.1:8889"))
+	if err != nil {
+		panic("err init client:" + err.Error())
+	}
+
+	resp, err := cli.Query(context.Background(), &kdemo.QueryReq{
+		Id: 1,
+	})
+	if err != nil {
+		panic("err query:" + err.Error())
+	}
 
 	c.JSON(consts.StatusOK, resp)
 }
