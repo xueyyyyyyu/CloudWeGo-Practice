@@ -63,7 +63,11 @@ func Query(ctx context.Context, c *app.RequestContext) {
 		panic("get custom req failed")
 	}
 	resp, err := cli.GenericCall(ctx, "Query", customReq)
-	c.JSON(consts.StatusOK, resp)
+	if err != nil {
+		panic("generic call failed")
+	}
+	realResp := resp.(*generic.HTTPResponse) // todo
+	c.JSON(consts.StatusOK, realResp)
 }
 
 // 泛化调用
