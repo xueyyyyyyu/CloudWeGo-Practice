@@ -57,8 +57,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		panic("generic call failed")
 	}
-	realResp := resp.(*generic.HTTPResponse)
-	c.JSON(consts.StatusOK, realResp.Body)
+	c.JSON(consts.StatusOK, resp)
 }
 
 // Query .
