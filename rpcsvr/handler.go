@@ -19,7 +19,12 @@ func (s *StudentServiceImpl) Register(ctx context.Context, student *demo.Student
 	if found {
 		return
 	} else {
-		id2Student[id] = *student
+		id2Student[id] = demo.Student{
+			Id:      student.Id,
+			Name:    student.Name,
+			College: student.College,
+			Email:   student.Email,
+		}
 	}
 	return
 }
@@ -41,7 +46,12 @@ func (s *StudentServiceImpl) Query(ctx context.Context, req *demo.QueryReq) (res
 
 	student, found := id2Student[int(req.Id)]
 	if found {
-		resp = &student
+		resp = &demo.Student{
+			Id:      student.Id,
+			Name:    student.Name,
+			College: student.College,
+			Email:   student.Email,
+		}
 	} else {
 		resp = &demo.Student{
 			Name: "not found",

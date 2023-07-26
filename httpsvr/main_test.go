@@ -2,8 +2,8 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
-	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 	"io/ioutil"
 	"net/http"
@@ -22,6 +22,9 @@ func TestStudentService(t *testing.T) {
 	for i := 1; i <= 100; i++ {
 		newStu := genStudent(i)
 		resp, err := registerResp(newStu)
+
+		fmt.Println(newStu)
+
 		Assert(t, err == nil, err)
 		Assert(t, resp.Success)
 
