@@ -24,6 +24,8 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
+	//todo
+
 	resp := new(demo.RegisterResp)
 
 	c.JSON(consts.StatusOK, resp)
@@ -66,8 +68,8 @@ func Query(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		panic("generic call failed")
 	}
-	realResp := resp.(*generic.HTTPResponse) // todo
-	c.JSON(consts.StatusOK, realResp)
+	realResp := resp.(*generic.HTTPResponse)
+	c.JSON(consts.StatusOK, realResp.Body)
 }
 
 // 泛化调用
