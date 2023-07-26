@@ -14,7 +14,7 @@ var id2Student = map[int]demo.Student{}
 
 // Register implements the StudentServiceImpl interface.
 func (s *StudentServiceImpl) Register(ctx context.Context, student *demo.Student) (resp *demo.RegisterResp, err error) {
-	// TODO: Your code here...
+	// rpc register
 	id := int(student.Id)
 	_, found := id2Student[id]
 	if found {
@@ -28,7 +28,7 @@ func (s *StudentServiceImpl) Register(ctx context.Context, student *demo.Student
 
 // Query implements the StudentServiceImpl interface.
 func (s *StudentServiceImpl) Query(ctx context.Context, req *demo.QueryReq) (resp *demo.Student, err error) {
-	// TODO: Your code here...
+	// rpc query
 	/*resp = &demo.Student{
 		Id:   1,
 		Name: "XueYu",
