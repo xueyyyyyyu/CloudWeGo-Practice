@@ -1,8 +1,10 @@
 package main
 
-/*import (
+import (
 	"bytes"
 	"fmt"
+	"github.com/cloudwego/hertz/pkg/common/json"
+	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 	"io/ioutil"
 	"net/http"
 	"testing"
@@ -19,7 +21,7 @@ var httpCli = &http.Client{Timeout: 3 * time.Second}
 func TestStudentService(t *testing.T) {
 	for i := 1; i <= 100; i++ {
 		newStu := genStudent(i)
-		resp, err := register(newStu)
+		resp, err := registerResp(newStu)
 		Assert(t, err == nil, err)
 		Assert(t, resp.Success)
 
@@ -35,7 +37,7 @@ func TestStudentService(t *testing.T) {
 func BenchmarkStudentService(b *testing.B) {
 	for i := 1; i < b.N; i++ {
 		newStu := genStudent(i)
-		resp, err := register(newStu)
+		resp, err := registerResp(newStu)
 		Assert(b, err == nil, err)
 		Assert(b, resp.Success, resp.Message)
 
@@ -48,7 +50,7 @@ func BenchmarkStudentService(b *testing.B) {
 	}
 }
 
-func register(stu *demo.Student) (rResp *demo.RegisterResp, err error) {
+func registerResp(stu *demo.Student) (rResp *demo.RegisterResp, err error) {
 	reqBody, err := json.Marshal(stu)
 	if err != nil {
 		return nil, fmt.Errorf("marshal request failed: err=%v", err)
@@ -120,4 +122,3 @@ type testingTB interface {
 	Fatalf(format string, args ...interface{})
 	Helper()
 }
-*/
