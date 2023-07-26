@@ -11,6 +11,8 @@ import (
 	"github.com/cloudwego/kitex/client/genericclient"
 	"github.com/cloudwego/kitex/pkg/generic"
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
+	kdemo "github.com/xueyyyyyyu/httpsvr/kitex_gen/demo"
+	"github.com/xueyyyyyyu/httpsvr/kitex_gen/demo/studentservice"
 )
 
 // Register .
@@ -25,8 +27,22 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	}
 
 	//todo
+	cli, err := studentservice.NewClient("student-server",
+		kclient.WithHostPorts("127.0.0.1:8889"))
+	if err != nil {
+		panic("err init client" + err.Error())
+	}
 
-	resp := new(demo.RegisterResp)
+	resp, err := cli.Register(context.Background(),
+		&kdemo.Student{
+			Id:   req.ID,
+			Name: req.Name,
+			College: &kdemo.College{
+				Name:    req.College.Name,
+				Address: req.College.Address,
+			},
+			Email: req.Email,
+		})
 
 	c.JSON(consts.StatusOK, resp)
 }
