@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	demo "github.com/xueyyyyyyu/rpcsvr/kitex_gen/demo"
 )
 
@@ -19,13 +20,9 @@ func (s *StudentServiceImpl) Register(ctx context.Context, student *demo.Student
 	if found {
 		return
 	} else {
-		id2Student[id] = demo.Student{
-			Id:      student.Id,
-			Name:    student.Name,
-			College: student.College,
-			Email:   student.Email,
-		}
+		id2Student[id] = *student
 	}
+	// fmt.Println(id2Student)
 	return
 }
 
@@ -44,19 +41,16 @@ func (s *StudentServiceImpl) Query(ctx context.Context, req *demo.QueryReq) (res
 		},
 	}*/
 
+	// fmt.Println(id2Student)
+
 	student, found := id2Student[int(req.Id)]
 	if found {
-		resp = &demo.Student{
-			Id:      student.Id,
-			Name:    student.Name,
-			College: student.College,
-			Email:   student.Email,
-		}
+		resp = &student
 	} else {
-		resp = &demo.Student{
-			Name: "not found",
-		}
+		err = errors.New("not found")
 	}
+
+	// fmt.Println(resp)
 
 	return
 }
