@@ -11,8 +11,6 @@ import (
 	"github.com/cloudwego/kitex/client/genericclient"
 	"github.com/cloudwego/kitex/pkg/generic"
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
-	kdemo "github.com/xueyyyyyyu/httpsvr/kitex_gen/demo"
-	"github.com/xueyyyyyyu/httpsvr/kitex_gen/demo/studentservice"
 )
 
 // Register .
@@ -26,8 +24,8 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	//todo
-	cli, err := studentservice.NewClient("student-server",
+	//step 3.1: 非泛化调用的register
+	/*cli, err := studentservice.NewClient("student-server",
 		kclient.WithHostPorts("127.0.0.1:8889"))
 	if err != nil {
 		panic("err init client" + err.Error())
@@ -42,8 +40,22 @@ func Register(ctx context.Context, c *app.RequestContext) {
 				Address: req.College.Address,
 			},
 			Email: req.Email,
-		})
+		})*/
 
+	// step 3.2: 泛化调用的register
+	cli := initGenericClient()
+	httpReq, err := adaptor.GetCompatRequest(c.GetRequest())
+	if err != nil {
+		panic("get http req failed")
+	}
+	customReq, err := generic.FromHTTPRequest(httpReq)
+	if err != nil {
+		panic("get custom req failed")
+	}
+	resp, err := cli.GenericCall(ctx, "Register", customReq)
+	if err != nil {
+		panic("generic call failed")
+	}
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -71,6 +83,7 @@ func Query(ctx context.Context, c *app.RequestContext) {
 		panic("err query:" + err.Error())
 	}*/
 
+	// 泛化调用的query
 	cli := initGenericClient()
 	httpReq, err := adaptor.GetCompatRequest(c.GetRequest())
 	if err != nil {
