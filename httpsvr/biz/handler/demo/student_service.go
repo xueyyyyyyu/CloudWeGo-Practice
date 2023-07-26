@@ -4,10 +4,13 @@ package demo
 
 import (
 	"context"
-
 	"github.com/cloudwego/hertz/pkg/app"
+	"github.com/cloudwego/hertz/pkg/common/adaptor"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
-	demo "github.com/xueyyyyyyu/httpsvr/biz/model/demo"
+	kclient "github.com/cloudwego/kitex/client"
+	"github.com/cloudwego/kitex/client/genericclient"
+	"github.com/cloudwego/kitex/pkg/generic"
+	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 )
 
 // Register .
@@ -21,8 +24,38 @@ func Register(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(demo.RegisterResp)
+	//step 3.1: 非泛化调用的register
+	/*cli, err := studentservice.NewClient("student-server",
+		kclient.WithHostPorts("127.0.0.1:8889"))
+	if err != nil {
+		panic("err init client" + err.Error())
+	}
 
+	resp, err := cli.Register(context.Background(),
+		&kdemo.Student{
+			Id:   req.ID,
+			Name: req.Name,
+			College: &kdemo.College{
+				Name:    req.College.Name,
+				Address: req.College.Address,
+			},
+			Email: req.Email,
+		})*/
+
+	// step 3.2: 泛化调用的register
+	cli := initGenericClient()
+	httpReq, err := adaptor.GetCompatRequest(c.GetRequest())
+	if err != nil {
+		panic("get http req failed")
+	}
+	customReq, err := generic.FromHTTPRequest(httpReq)
+	if err != nil {
+		panic("get custom req failed")
+	}
+	resp, err := cli.GenericCall(ctx, "Register", customReq)
+	if err != nil {
+		panic("generic call failed")
+	}
 	c.JSON(consts.StatusOK, resp)
 }
 
@@ -37,7 +70,55 @@ func Query(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	resp := new(demo.Student)
+	/*cli, err := studentservice.NewClient("student-server",
+		kclient.WithHostPorts("127.0.0.1:8889"))
+	if err != nil {
+		panic("err init client:" + err.Error())
+	}
 
-	c.JSON(consts.StatusOK, resp)
+	resp, err := cli.Query(context.Background(), &kdemo.QueryReq{
+		Id: 1,
+	})
+	if err != nil {
+		panic("err query:" + err.Error())
+	}*/
+
+	// 泛化调用的query
+	cli := initGenericClient()
+	httpReq, err := adaptor.GetCompatRequest(c.GetRequest())
+	if err != nil {
+		panic("get http req failed")
+	}
+	customReq, err := generic.FromHTTPRequest(httpReq)
+	if err != nil {
+		panic("get custom req failed")
+	}
+	resp, err := cli.GenericCall(ctx, "Query", customReq)
+	if err != nil {
+		panic("generic call failed")
+	}
+	realResp := resp.(*generic.HTTPResponse)
+	c.JSON(consts.StatusOK, realResp.Body)
+}
+
+// 泛化调用
+func initGenericClient() genericclient.Client {
+	p, err := generic.NewThriftFileProvider("../student.thrift")
+	if err != nil {
+		panic(err)
+	}
+
+	// 构造HTTP类型的泛化调用
+	g, err := generic.HTTPThriftGeneric(p)
+	if err != nil {
+		panic(err)
+	}
+
+	cli, err := genericclient.NewClient("destServiceName", g,
+		kclient.WithHostPorts("127.0.0.1:8889"))
+	if err != nil {
+		panic(err)
+	}
+
+	return cli
 }
