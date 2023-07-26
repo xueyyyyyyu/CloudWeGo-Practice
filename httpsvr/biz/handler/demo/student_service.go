@@ -10,7 +10,9 @@ import (
 	kclient "github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/genericclient"
 	"github.com/cloudwego/kitex/pkg/generic"
+	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
+	"log"
 )
 
 // Register .
@@ -57,8 +59,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		panic("generic call failed")
 	}
-	realResp := resp.(*generic.HTTPResponse)
-	c.JSON(consts.StatusOK, realResp.Body)
+	c.JSON(consts.StatusOK, resp)
 }
 
 // Query .
@@ -107,6 +108,11 @@ func Query(ctx context.Context, c *app.RequestContext) {
 
 // 泛化调用
 func initGenericClient() genericclient.Client {
+	r, err := etcd.NewEtcdResolver([]string{"127.0.0.1:2379"})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	p, err := generic.NewThriftFileProvider("../student.thrift")
 	if err != nil {
 		panic(err)
@@ -119,7 +125,8 @@ func initGenericClient() genericclient.Client {
 	}
 
 	cli, err := genericclient.NewClient("destServiceName", g,
-		kclient.WithHostPorts("127.0.0.1:8889"))
+		kclient.WithHostPorts("127.0.0.1:8889"),
+		kclient.WithResolver(r))
 	if err != nil {
 		panic(err)
 	}

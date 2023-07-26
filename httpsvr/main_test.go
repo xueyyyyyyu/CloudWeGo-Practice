@@ -23,7 +23,7 @@ func TestStudentService(t *testing.T) {
 		newStu := genStudent(i)
 		resp, err := registerResp(newStu)
 
-		fmt.Println(newStu)
+		fmt.Println(resp.Success)
 
 		Assert(t, err == nil, err)
 		Assert(t, resp.Success)
