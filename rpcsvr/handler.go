@@ -8,16 +8,31 @@ import (
 // StudentServiceImpl implements the last service interface defined in the IDL.
 type StudentServiceImpl struct{}
 
+// map 缓存
+var id2Student = map[int]demo.Student{}
+
 // Register implements the StudentServiceImpl interface.
 func (s *StudentServiceImpl) Register(ctx context.Context, student *demo.Student) (resp *demo.RegisterResp, err error) {
 	// TODO: Your code here...
+	id := int(student.Id)
+	_, found := id2Student[id]
+	if found {
+		return
+	} else {
+		id2Student[id] = demo.Student{
+			Id:      student.Id,
+			Name:    student.Name,
+			College: student.College,
+			Email:   student.Email,
+		}
+	}
 	return
 }
 
 // Query implements the StudentServiceImpl interface.
 func (s *StudentServiceImpl) Query(ctx context.Context, req *demo.QueryReq) (resp *demo.Student, err error) {
 	// TODO: Your code here...
-	resp = &demo.Student{
+	/*resp = &demo.Student{
 		Id:   1,
 		Name: "XueYu",
 		College: &demo.College{
@@ -27,6 +42,21 @@ func (s *StudentServiceImpl) Query(ctx context.Context, req *demo.QueryReq) (res
 		Email: []string{
 			"211250052@smail.nju.edu.cn",
 		},
+	}*/
+
+	student, found := id2Student[int(req.Id)]
+	if found {
+		resp = &demo.Student{
+			Id:      student.Id,
+			Name:    student.Name,
+			College: student.College,
+			Email:   student.Email,
+		}
+	} else {
+		resp = &demo.Student{
+			Name: "not found",
+		}
 	}
+
 	return
 }

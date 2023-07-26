@@ -40,7 +40,8 @@ func Register(ctx context.Context, c *app.RequestContext) {
 				Address: req.College.Address,
 			},
 			Email: req.Email,
-		})*/
+		})
+	c.JSON(consts.StatusOK, resp)*/
 
 	// step 3.2: 泛化调用的register
 	cli := initGenericClient()
@@ -56,7 +57,8 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	if err != nil {
 		panic("generic call failed")
 	}
-	c.JSON(consts.StatusOK, resp)
+	realResp := resp.(*generic.HTTPResponse)
+	c.JSON(consts.StatusOK, realResp.Body)
 }
 
 // Query .
@@ -81,7 +83,9 @@ func Query(ctx context.Context, c *app.RequestContext) {
 	})
 	if err != nil {
 		panic("err query:" + err.Error())
-	}*/
+	}
+
+	c.JSON(consts.StatusOK, resp)*/
 
 	// 泛化调用的query
 	cli := initGenericClient()
