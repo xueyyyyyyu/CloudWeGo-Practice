@@ -217,6 +217,7 @@ func (p *Student) FastRead(buf []byte) (int, error) {
 	var fieldId int16
 	var issetId bool = false
 	var issetName bool = false
+	var issetSex bool = false
 	var issetCollege bool = false
 	_, l, err = bthrift.Binary.ReadStructBegin(buf)
 	offset += l
@@ -265,8 +266,23 @@ func (p *Student) FastRead(buf []byte) (int, error) {
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				l, err = p.FastReadField3(buf[offset:])
+				offset += l
+				if err != nil {
+					goto ReadFieldError
+				}
+				issetSex = true
+			} else {
+				l, err = bthrift.Binary.Skip(buf[offset:], fieldTypeId)
+				offset += l
+				if err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.STRUCT {
+				l, err = p.FastReadField4(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
@@ -279,9 +295,9 @@ func (p *Student) FastRead(buf []byte) (int, error) {
 					goto SkipFieldError
 				}
 			}
-		case 4:
+		case 5:
 			if fieldTypeId == thrift.LIST {
-				l, err = p.FastReadField4(buf[offset:])
+				l, err = p.FastReadField5(buf[offset:])
 				offset += l
 				if err != nil {
 					goto ReadFieldError
@@ -323,8 +339,13 @@ func (p *Student) FastRead(buf []byte) (int, error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCollege {
+	if !issetSex {
 		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetCollege {
+		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 	return offset, nil
@@ -375,6 +396,20 @@ func (p *Student) FastReadField2(buf []byte) (int, error) {
 func (p *Student) FastReadField3(buf []byte) (int, error) {
 	offset := 0
 
+	if v, l, err := bthrift.Binary.ReadString(buf[offset:]); err != nil {
+		return offset, err
+	} else {
+		offset += l
+
+		p.Sex = v
+
+	}
+	return offset, nil
+}
+
+func (p *Student) FastReadField4(buf []byte) (int, error) {
+	offset := 0
+
 	tmp := NewCollege()
 	if l, err := tmp.FastRead(buf[offset:]); err != nil {
 		return offset, err
@@ -385,7 +420,7 @@ func (p *Student) FastReadField3(buf []byte) (int, error) {
 	return offset, nil
 }
 
-func (p *Student) FastReadField4(buf []byte) (int, error) {
+func (p *Student) FastReadField5(buf []byte) (int, error) {
 	offset := 0
 
 	_, size, l, err := bthrift.Binary.ReadListBegin(buf[offset:])
@@ -428,6 +463,7 @@ func (p *Student) FastWriteNocopy(buf []byte, binaryWriter bthrift.BinaryWriter)
 		offset += p.fastWriteField2(buf[offset:], binaryWriter)
 		offset += p.fastWriteField3(buf[offset:], binaryWriter)
 		offset += p.fastWriteField4(buf[offset:], binaryWriter)
+		offset += p.fastWriteField5(buf[offset:], binaryWriter)
 	}
 	offset += bthrift.Binary.WriteFieldStop(buf[offset:])
 	offset += bthrift.Binary.WriteStructEnd(buf[offset:])
@@ -442,6 +478,7 @@ func (p *Student) BLength() int {
 		l += p.field2Length()
 		l += p.field3Length()
 		l += p.field4Length()
+		l += p.field5Length()
 	}
 	l += bthrift.Binary.FieldStopLength()
 	l += bthrift.Binary.StructEndLength()
@@ -468,16 +505,25 @@ func (p *Student) fastWriteField2(buf []byte, binaryWriter bthrift.BinaryWriter)
 
 func (p *Student) fastWriteField3(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
-	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "college", thrift.STRUCT, 3)
-	offset += p.College.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "sex", thrift.STRING, 3)
+	offset += bthrift.Binary.WriteStringNocopy(buf[offset:], binaryWriter, p.Sex)
+
 	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
 	return offset
 }
 
 func (p *Student) fastWriteField4(buf []byte, binaryWriter bthrift.BinaryWriter) int {
 	offset := 0
+	offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "college", thrift.STRUCT, 4)
+	offset += p.College.FastWriteNocopy(buf[offset:], binaryWriter)
+	offset += bthrift.Binary.WriteFieldEnd(buf[offset:])
+	return offset
+}
+
+func (p *Student) fastWriteField5(buf []byte, binaryWriter bthrift.BinaryWriter) int {
+	offset := 0
 	if p.IsSetEmail() {
-		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "email", thrift.LIST, 4)
+		offset += bthrift.Binary.WriteFieldBegin(buf[offset:], "email", thrift.LIST, 5)
 		listBeginOffset := offset
 		offset += bthrift.Binary.ListBeginLength(thrift.STRING, 0)
 		var length int
@@ -513,16 +559,25 @@ func (p *Student) field2Length() int {
 
 func (p *Student) field3Length() int {
 	l := 0
-	l += bthrift.Binary.FieldBeginLength("college", thrift.STRUCT, 3)
-	l += p.College.BLength()
+	l += bthrift.Binary.FieldBeginLength("sex", thrift.STRING, 3)
+	l += bthrift.Binary.StringLengthNocopy(p.Sex)
+
 	l += bthrift.Binary.FieldEndLength()
 	return l
 }
 
 func (p *Student) field4Length() int {
 	l := 0
+	l += bthrift.Binary.FieldBeginLength("college", thrift.STRUCT, 4)
+	l += p.College.BLength()
+	l += bthrift.Binary.FieldEndLength()
+	return l
+}
+
+func (p *Student) field5Length() int {
+	l := 0
 	if p.IsSetEmail() {
-		l += bthrift.Binary.FieldBeginLength("email", thrift.LIST, 4)
+		l += bthrift.Binary.FieldBeginLength("email", thrift.LIST, 5)
 		l += bthrift.Binary.ListBeginLength(thrift.STRING, len(p.Email))
 		for _, v := range p.Email {
 			l += bthrift.Binary.StringLengthNocopy(v)

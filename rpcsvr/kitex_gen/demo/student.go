@@ -243,8 +243,9 @@ func (p *College) Field2DeepEqual(src string) bool {
 type Student struct {
 	Id      int32    `thrift:"id,1,required" frugal:"1,required,i32" json:"id"`
 	Name    string   `thrift:"name,2,required" frugal:"2,required,string" json:"name"`
-	College *College `thrift:"college,3,required" frugal:"3,required,College" json:"college"`
-	Email   []string `thrift:"email,4,optional" frugal:"4,optional,list<string>" json:"email,omitempty"`
+	Sex     string   `thrift:"sex,3,required" frugal:"3,required,string" json:"sex"`
+	College *College `thrift:"college,4,required" frugal:"4,required,College" json:"college"`
+	Email   []string `thrift:"email,5,optional" frugal:"5,optional,list<string>" json:"email,omitempty"`
 }
 
 func NewStudent() *Student {
@@ -261,6 +262,10 @@ func (p *Student) GetId() (v int32) {
 
 func (p *Student) GetName() (v string) {
 	return p.Name
+}
+
+func (p *Student) GetSex() (v string) {
+	return p.Sex
 }
 
 var Student_College_DEFAULT *College
@@ -286,6 +291,9 @@ func (p *Student) SetId(val int32) {
 func (p *Student) SetName(val string) {
 	p.Name = val
 }
+func (p *Student) SetSex(val string) {
+	p.Sex = val
+}
 func (p *Student) SetCollege(val *College) {
 	p.College = val
 }
@@ -296,8 +304,9 @@ func (p *Student) SetEmail(val []string) {
 var fieldIDToName_Student = map[int16]string{
 	1: "id",
 	2: "name",
-	3: "college",
-	4: "email",
+	3: "sex",
+	4: "college",
+	5: "email",
 }
 
 func (p *Student) IsSetCollege() bool {
@@ -314,6 +323,7 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 	var fieldId int16
 	var issetId bool = false
 	var issetName bool = false
+	var issetSex bool = false
 	var issetCollege bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -353,8 +363,19 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 3:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.STRING {
 				if err = p.ReadField3(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetSex = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 4:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField4(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetCollege = true
@@ -363,9 +384,9 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
-		case 4:
+		case 5:
 			if fieldTypeId == thrift.LIST {
-				if err = p.ReadField4(iprot); err != nil {
+				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -397,8 +418,13 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCollege {
+	if !issetSex {
 		fieldId = 3
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetCollege {
+		fieldId = 4
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -438,6 +464,15 @@ func (p *Student) ReadField2(iprot thrift.TProtocol) error {
 }
 
 func (p *Student) ReadField3(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadString(); err != nil {
+		return err
+	} else {
+		p.Sex = v
+	}
+	return nil
+}
+
+func (p *Student) ReadField4(iprot thrift.TProtocol) error {
 	p.College = NewCollege()
 	if err := p.College.Read(iprot); err != nil {
 		return err
@@ -445,7 +480,7 @@ func (p *Student) ReadField3(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *Student) ReadField4(iprot thrift.TProtocol) error {
+func (p *Student) ReadField5(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -487,6 +522,10 @@ func (p *Student) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField4(oprot); err != nil {
 			fieldId = 4
+			goto WriteFieldError
+		}
+		if err = p.writeField5(oprot); err != nil {
+			fieldId = 5
 			goto WriteFieldError
 		}
 
@@ -543,10 +582,10 @@ WriteFieldEndError:
 }
 
 func (p *Student) writeField3(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("college", thrift.STRUCT, 3); err != nil {
+	if err = oprot.WriteFieldBegin("sex", thrift.STRING, 3); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.College.Write(oprot); err != nil {
+	if err := oprot.WriteString(p.Sex); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -560,8 +599,25 @@ WriteFieldEndError:
 }
 
 func (p *Student) writeField4(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("college", thrift.STRUCT, 4); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.College.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+}
+
+func (p *Student) writeField5(oprot thrift.TProtocol) (err error) {
 	if p.IsSetEmail() {
-		if err = oprot.WriteFieldBegin("email", thrift.LIST, 4); err != nil {
+		if err = oprot.WriteFieldBegin("email", thrift.LIST, 5); err != nil {
 			goto WriteFieldBeginError
 		}
 		if err := oprot.WriteListBegin(thrift.STRING, len(p.Email)); err != nil {
@@ -581,9 +637,9 @@ func (p *Student) writeField4(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 4 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
 }
 
 func (p *Student) String() string {
@@ -605,10 +661,13 @@ func (p *Student) DeepEqual(ano *Student) bool {
 	if !p.Field2DeepEqual(ano.Name) {
 		return false
 	}
-	if !p.Field3DeepEqual(ano.College) {
+	if !p.Field3DeepEqual(ano.Sex) {
 		return false
 	}
-	if !p.Field4DeepEqual(ano.Email) {
+	if !p.Field4DeepEqual(ano.College) {
+		return false
+	}
+	if !p.Field5DeepEqual(ano.Email) {
 		return false
 	}
 	return true
@@ -628,14 +687,21 @@ func (p *Student) Field2DeepEqual(src string) bool {
 	}
 	return true
 }
-func (p *Student) Field3DeepEqual(src *College) bool {
+func (p *Student) Field3DeepEqual(src string) bool {
+
+	if strings.Compare(p.Sex, src) != 0 {
+		return false
+	}
+	return true
+}
+func (p *Student) Field4DeepEqual(src *College) bool {
 
 	if !p.College.DeepEqual(src) {
 		return false
 	}
 	return true
 }
-func (p *Student) Field4DeepEqual(src []string) bool {
+func (p *Student) Field5DeepEqual(src []string) bool {
 
 	if len(p.Email) != len(src) {
 		return false

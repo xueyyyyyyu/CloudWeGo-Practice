@@ -13,6 +13,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
+	"io/ioutil"
 	"log"
 )
 
@@ -114,9 +115,34 @@ func initGenericClient() genericclient.Client {
 		log.Fatal(err)
 	}
 
-	p, err := generic.NewThriftFileProvider("../student.thrift")
+	// 基于本地文件解析 IDL，不支持热更新
+	/*p, err := generic.NewThriftFileProvider("../student.thrift")
 	if err != nil {
 		panic(err)
+	}*/
+
+	//基于内存解析 IDL，支持热更新
+
+	path := "../student.thrift"
+	cont, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	content := string(cont[:])
+
+	includes := map[string]string{
+		path: content,
+	}
+
+	p, err := generic.NewThriftContentProvider(content, includes)
+	if err != nil {
+		panic(err)
+	}
+
+	// dynamic update
+	err = p.UpdateIDL(content, includes)
+	if err != nil {
+		panic("UpdateIDL failed")
 	}
 
 	// 构造HTTP类型的泛化调用
