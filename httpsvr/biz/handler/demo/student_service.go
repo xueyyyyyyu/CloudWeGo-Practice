@@ -59,7 +59,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	}
 	resp, err := cli.GenericCall(ctx, "Register", customReq)
 	if err != nil {
-		panic("generic call failed")
+		panic("generic call failed" + err.Error())
 	}
 	c.JSON(consts.StatusOK, resp)
 }
@@ -102,7 +102,7 @@ func Query(ctx context.Context, c *app.RequestContext) {
 	}
 	resp, err := cli.GenericCall(ctx, "Query", customReq)
 	if err != nil {
-		panic("generic call failed")
+		panic("generic call failed" + err.Error())
 	}
 	realResp := resp.(*generic.HTTPResponse)
 	c.JSON(consts.StatusOK, realResp.Body)
@@ -151,8 +151,7 @@ func initGenericClient() genericclient.Client {
 		panic(err)
 	}
 
-	cli, err := genericclient.NewClient("destServiceName", g,
-		kclient.WithHostPorts("127.0.0.1:8889"),
+	cli, err := genericclient.NewClient("student", g,
 		kclient.WithResolver(r),
 		kclient.WithLoadBalancer(loadbalance.NewWeightedRandomBalancer()))
 	if err != nil {
