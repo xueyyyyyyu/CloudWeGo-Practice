@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"log"
 
@@ -17,9 +18,9 @@ func main() {
 		log.Fatal(err)
 	}
 
-	cli, err := studentservice.NewClient("student-server",
-		client.WithHostPorts("127.0.0.1:8889"),
-		client.WithResolver(r))
+	cli, err := studentservice.NewClient("student",
+		client.WithResolver(r),
+		client.WithLoadBalancer(loadbalance.NewWeightedRandomBalancer()))
 	if err != nil {
 		panic("err init client:" + err.Error())
 	}
@@ -27,6 +28,7 @@ func main() {
 	resp, err := cli.Register(context.Background(), &demo.Student{
 		Id:   1,
 		Name: "XueYu",
+		Sex:  "male",
 		College: &demo.College{
 			Name:    "SE",
 			Address: "NJU",
