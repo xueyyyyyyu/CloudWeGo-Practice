@@ -10,6 +10,7 @@ import (
 	kclient "github.com/cloudwego/kitex/client"
 	"github.com/cloudwego/kitex/client/genericclient"
 	"github.com/cloudwego/kitex/pkg/generic"
+	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 	"log"
@@ -126,7 +127,8 @@ func initGenericClient() genericclient.Client {
 
 	cli, err := genericclient.NewClient("destServiceName", g,
 		kclient.WithHostPorts("127.0.0.1:8889"),
-		kclient.WithResolver(r))
+		kclient.WithResolver(r),
+		kclient.WithLoadBalancer(loadbalance.NewWeightedRandomBalancer()))
 	if err != nil {
 		panic(err)
 	}
