@@ -20,11 +20,11 @@ func main() {
 		server.WithServiceAddr(addr),
 		server.WithRegistry(r),
 		server.WithServerBasicInfo(&rpcinfo.EndpointBasicInfo{
-			ServiceName: "student"}), /*,
-		server.WithRegistryInfo(&registry.Info{
-			Tags: map[string]string{
-				"Cluster": "StudentCluster",
-			}}), server.WithExitWaitTime(time.Minute)*/)
+			ServiceName: "student"}), /*
+			server.WithRegistryInfo(&registry.Info{
+				Tags: map[string]string{
+					"Cluster": "StudentCluster",
+				}}), server.WithExitWaitTime(time.Minute)*/)
 
 	err = svr.Run()
 	if err != nil {

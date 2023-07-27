@@ -13,6 +13,7 @@ import (
 	"github.com/cloudwego/kitex/pkg/loadbalance"
 	etcd "github.com/kitex-contrib/registry-etcd"
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
+	"io/ioutil"
 	"log"
 )
 
@@ -58,7 +59,7 @@ func Register(ctx context.Context, c *app.RequestContext) {
 	}
 	resp, err := cli.GenericCall(ctx, "Register", customReq)
 	if err != nil {
-		panic("generic call failed")
+		panic("generic call failed" + err.Error())
 	}
 	c.JSON(consts.StatusOK, resp)
 }
@@ -101,7 +102,7 @@ func Query(ctx context.Context, c *app.RequestContext) {
 	}
 	resp, err := cli.GenericCall(ctx, "Query", customReq)
 	if err != nil {
-		panic("generic call failed")
+		panic("generic call failed" + err.Error())
 	}
 	realResp := resp.(*generic.HTTPResponse)
 	c.JSON(consts.StatusOK, realResp.Body)
@@ -114,9 +115,34 @@ func initGenericClient() genericclient.Client {
 		log.Fatal(err)
 	}
 
-	p, err := generic.NewThriftFileProvider("../student.thrift")
+	// 基于本地文件解析 IDL，不支持热更新
+	/*p, err := generic.NewThriftFileProvider("../student.thrift")
 	if err != nil {
 		panic(err)
+	}*/
+
+	//基于内存解析 IDL，支持热更新
+
+	path := "../student.thrift"
+	cont, err := ioutil.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	content := string(cont[:])
+
+	includes := map[string]string{
+		path: content,
+	}
+
+	p, err := generic.NewThriftContentProvider(content, includes)
+	if err != nil {
+		panic(err)
+	}
+
+	// dynamic update
+	err = p.UpdateIDL(content, includes)
+	if err != nil {
+		panic("UpdateIDL failed")
 	}
 
 	// 构造HTTP类型的泛化调用
@@ -125,8 +151,7 @@ func initGenericClient() genericclient.Client {
 		panic(err)
 	}
 
-	cli, err := genericclient.NewClient("destServiceName", g,
-		kclient.WithHostPorts("127.0.0.1:8889"),
+	cli, err := genericclient.NewClient("student", g,
 		kclient.WithResolver(r),
 		kclient.WithLoadBalancer(loadbalance.NewWeightedRandomBalancer()))
 	if err != nil {

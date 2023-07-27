@@ -9,8 +9,10 @@ struct College {
 struct Student {
     1: required i32 id(api.body='id'),
     2: required string name(api.body='name'),
-    3: required College college(api.body='college'),
-    4: optional list<string> email(api.body='email'),
+    3: required string sex(api.body='sex'),
+    4: required i32 age(api.body='age'),
+    5: required College college(api.body='college'),
+    6: optional list<string> email(api.body='email'),
 }
 
 struct RegisterResp {
