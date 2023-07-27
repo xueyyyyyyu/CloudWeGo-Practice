@@ -23,7 +23,7 @@ func TestStudentService(t *testing.T) {
 		newStu := genStudent(i)
 		resp, err := registerResp(newStu)
 
-		fmt.Println(resp.Success)
+		// fmt.Println(resp.Success)
 
 		Assert(t, err == nil, err)
 		Assert(t, resp.Success)
@@ -32,6 +32,8 @@ func TestStudentService(t *testing.T) {
 		Assert(t, err == nil, err)
 		Assert(t, stu.ID == newStu.ID)
 		Assert(t, stu.Name == newStu.Name)
+		Assert(t, stu.Sex == newStu.Sex)
+		Assert(t, stu.Age == newStu.Age)
 		Assert(t, stu.Email[0] == newStu.Email[0])
 		Assert(t, stu.College.Name == newStu.College.Name)
 	}
@@ -98,9 +100,11 @@ func genStudent(id int) *demo.Student {
 	return &demo.Student{
 		ID:   int32(id),
 		Name: fmt.Sprintf("student-%d", id),
+		Sex:  "male",
+		Age:  100,
 		College: &demo.College{
-			Name:    "",
-			Address: "",
+			Name:    "A",
+			Address: "B",
 		},
 		Email: []string{fmt.Sprintf("student-%d@nju.com", id)},
 	}
