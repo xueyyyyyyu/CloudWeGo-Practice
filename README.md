@@ -184,7 +184,7 @@ curl -H "Content-Type: application/json" -X GET http://127.0.0.1:8888/query?id=1
 curl -H "Content-Type: application/json" -X POST http://127.0.0.1:8888/add-student-info -d '{"id": 100, "name":"XueYu", "sex":"male", "age":20, "college": {"name": "software college", "address": "NJU"}, "email": ["211250052@smail.nju.edu.cn"]}'
 ```
 
-浏览器访问http://127.0.0.1:8888/query?id=100得到了含有 age 的结果，说明热更新成功实现。
+浏览器访问 http://127.0.0.1:8888/query?id=100 得到了含有 age 的结果，说明热更新成功实现。
 
 
 
