@@ -24,10 +24,19 @@ func (s *StudentServiceImpl) Register(ctx context.Context, student *demo.Student
 	id := int(student.Id)
 	_, found := id2Student[id]
 	if found {
+		resp = &demo.RegisterResp{
+			Success: false,
+			Message: "Student ID already exists.",
+		}
 		return
-	} else {
-		id2Student[id] = *student
 	}
+
+	id2Student[id] = *student
+	resp = &demo.RegisterResp{
+		Success: true,
+		Message: "Student information added successfully.",
+	}
+
 	// fmt.Println(id2Student)
 	return
 }

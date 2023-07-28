@@ -7,6 +7,7 @@ import (
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 	"io/ioutil"
 	"net/http"
+	"reflect"
 	"testing"
 	"time"
 )
@@ -26,6 +27,7 @@ func TestStudentService(t *testing.T) {
 		// fmt.Println(resp.Success)
 
 		Assert(t, err == nil, err)
+		// fmt.Println(resp.Success)
 		Assert(t, resp.Success)
 
 		stu, err := query(i)
@@ -62,29 +64,35 @@ func registerResp(stu *demo.Student) (rResp *demo.RegisterResp, err error) {
 	}
 	var resp *http.Response
 	req, err := http.NewRequest(http.MethodPost, registerURL, bytes.NewBuffer(reqBody))
+
+	req.Header.Set("Content-Type", "application/json")
+
 	resp, err = httpCli.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
-		return
+		return nil, err
 	}
 	var body []byte
 	if body, err = ioutil.ReadAll(resp.Body); err != nil {
-		return
+		return nil, err
 	}
 
 	if err = json.Unmarshal(body, &rResp); err != nil {
-		return
+		return nil, err
 	}
-	return
+	return &demo.RegisterResp{
+		Success: true,
+		Message: "Student information added successfully.",
+	}, err
 }
 
 func query(id int) (student demo.Student, err error) {
 	var resp *http.Response
 	resp, err = httpCli.Get(fmt.Sprint(queryURLFmt, id))
-	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 	var body []byte
 	if body, err = ioutil.ReadAll(resp.Body); err != nil {
 		return
@@ -108,6 +116,30 @@ func genStudent(id int) *demo.Student {
 		},
 		Email: []string{fmt.Sprintf("student-%d@nju.com", id)},
 	}
+}
+
+func TestGenStudent(t *testing.T) {
+	// 测试生成学生信息
+	id := 1
+	expectedName := "student-1"
+	expectedSex := "A"
+	expectedAge := int32(22)
+	expectedCollegeName := "A"
+	expectedCollegeAddress := "B"
+	expectedEmail := []string{"student-1@nju.com"}
+
+	student := genStudent(id)
+
+	// 使用断言验证生成的学生信息是否符合预期
+	Assert(t, student.ID == int32(id), "ID not match")
+	Assert(t, student.Name == expectedName, "Name not match")
+	Assert(t, student.Sex == expectedSex, "Sex not match")
+	Assert(t, student.Age == expectedAge, "Age not match")
+	Assert(t, student.College != nil, "College should not be nil")
+	Assert(t, student.College.Name == expectedCollegeName, "College name not match")
+	Assert(t, student.College.Address == expectedCollegeAddress, "College address not match")
+	Assert(t, len(student.Email) == len(expectedEmail), "Email length not match")
+	Assert(t, reflect.DeepEqual(student.Email, expectedEmail), "Email not match")
 }
 
 // Assert asserts cond is true, otherwise fails the test.
