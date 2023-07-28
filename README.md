@@ -201,7 +201,7 @@ curl -H "Content-Type: application/json" -X POST http://127.0.0.1:8888/add-stude
 
 可读性：关键代码有注释，编码风格还行
 
-模块划分：基本按照下图![整体设计](.\README\image-20230728002719591.png)
+模块划分：基本按照下图![整体设计](./README/image-20230728002719591.png)
 
 单测覆盖：
 
@@ -281,7 +281,7 @@ curl -H "Content-Type: application/json" -X POST http://127.0.0.1:8888/add-stude
 
 ## 5. 作业要求
 
-![基础要求](.\README\image-20230724224511011.png)
+![基础要求](./README/image-20230724224511011.png)
 
-![附加要求](.\README\image-20230724224617096.png)
+![附加要求](./README/image-20230724224617096.png)
 
