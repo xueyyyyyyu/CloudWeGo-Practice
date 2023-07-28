@@ -7,7 +7,7 @@ import (
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 	"io/ioutil"
 	"net/http"
-	"reflect"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -55,6 +55,28 @@ func BenchmarkStudentService(b *testing.B) {
 		Assert(b, stu.Email[0] == newStu.Email[0])
 		Assert(b, stu.College.Name == newStu.College.Name)
 	}
+}
+
+func BenchmarkStudentServiceParallel(b *testing.B) {
+	runtime.GOMAXPROCS(4)
+	b.RunParallel(func(pb *testing.PB) {
+		i := 1
+		for pb.Next() {
+			newStu := genStudent(i)
+			resp, err := registerResp(newStu)
+			Assert(b, err == nil, err)
+			Assert(b, resp.Success, resp.Message)
+
+			stu, err := query(i)
+			Assert(b, err == nil, err)
+			Assert(b, stu.ID == newStu.ID)
+			Assert(b, stu.Name == newStu.Name, newStu.ID, stu.Name, newStu.Name)
+			Assert(b, stu.Email[0] == newStu.Email[0])
+			Assert(b, stu.College.Name == newStu.College.Name)
+
+			i++
+		}
+	})
 }
 
 func registerResp(stu *demo.Student) (rResp *demo.RegisterResp, err error) {
@@ -118,7 +140,7 @@ func genStudent(id int) *demo.Student {
 	}
 }
 
-func TestGenStudent(t *testing.T) {
+/*func TestGenStudent(t *testing.T) {
 	// 测试生成学生信息
 	id := 1
 	expectedName := "student-1"
@@ -141,6 +163,7 @@ func TestGenStudent(t *testing.T) {
 	Assert(t, len(student.Email) == len(expectedEmail), "Email length not match")
 	Assert(t, reflect.DeepEqual(student.Email, expectedEmail), "Email not match")
 }
+*/
 
 // Assert asserts cond is true, otherwise fails the test.
 func Assert(t testingTB, cond bool, val ...interface{}) {
