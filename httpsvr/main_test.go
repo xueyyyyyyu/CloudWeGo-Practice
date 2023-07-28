@@ -100,8 +100,8 @@ func genStudent(id int) *demo.Student {
 	return &demo.Student{
 		ID:   int32(id),
 		Name: fmt.Sprintf("student-%d", id),
-		Sex:  "male",
-		Age:  100,
+		Sex:  "A",
+		Age:  int32(22),
 		College: &demo.College{
 			Name:    "A",
 			Address: "B",

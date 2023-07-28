@@ -1,0 +1,55 @@
+test@test-virtual-machine:~$ ab -n 1000 -c 4 http://127.0.0.1:8888/query?id=100
+This is ApacheBench, Version 2.3 <$Revision: 1843412 $>
+Copyright 1996 Adam Twiss, Zeus Technology Ltd, http://www.zeustech.net/
+Licensed to The Apache Software Foundation, http://www.apache.org/
+
+Benchmarking 127.0.0.1 (be patient)
+Completed 100 requests
+Completed 200 requests
+Completed 300 requests
+Completed 400 requests
+Completed 500 requests
+Completed 600 requests
+Completed 700 requests
+Completed 800 requests
+Completed 900 requests
+Completed 1000 requests
+Finished 1000 requests
+
+
+Server Software:        hertz
+Server Hostname:        127.0.0.1
+Server Port:            8888
+
+Document Path:          /query?id=100
+Document Length:        140 bytes
+
+Concurrency Level:      4
+Time taken for tests:   1.071 seconds
+Complete requests:      1000
+Failed requests:        0
+Total transferred:      298000 bytes
+HTML transferred:       140000 bytes
+Requests per second:    933.79 [#/sec] (mean)
+Time per request:       4.284 [ms] (mean)
+Time per request:       1.071 [ms] (mean, across all concurrent requests)
+Transfer rate:          271.75 [Kbytes/sec] received
+
+Connection Times (ms)
+              min  mean[+/-sd] median   max
+Connect:        0    0   0.0      0       0
+Processing:     1    4   3.3      3      30
+Waiting:        1    4   3.3      3      30
+Total:          1    4   3.3      4      30
+
+Percentage of the requests served within a certain time (ms)
+  50%      4
+  66%      4
+  75%      5
+  80%      5
+  90%      7
+  95%      8
+  98%     15
+  99%     22
+ 100%     30 (longest request)
+

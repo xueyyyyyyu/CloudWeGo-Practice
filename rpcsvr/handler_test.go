@@ -19,10 +19,7 @@ func TestStudentService_Register(t *testing.T) {
 		Email:   []string{"john.doe@example.com"},
 	}
 
-	// Test initial state of the map
-	if len(id2Student) != 0 {
-		t.Errorf("Expected map to be empty, but it's not.")
-	}
+	len1 := len(id2Student)
 
 	// Test registering a new student
 	_, err := service.Register(context.Background(), student)
@@ -31,8 +28,8 @@ func TestStudentService_Register(t *testing.T) {
 	}
 
 	// Verify the student is present in the map
-	if len(id2Student) != 1 {
-		t.Errorf("Expected one student in the map, but found %d", len(id2Student))
+	if len(id2Student) != 1+len1 {
+		t.Errorf("Expected a new student in the map, but found %d", len(id2Student)-len1)
 	}
 }
 

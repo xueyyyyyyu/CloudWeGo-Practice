@@ -9,7 +9,7 @@ import (
 
 // StudentServiceImpl implements the last service interface defined in the IDL.
 type StudentServiceImpl struct {
-	mu sync.Mutex // Define a mutex to protect id2Student
+	mu sync.RWMutex // Define a mutex to protect id2Student
 }
 
 // map 缓存
