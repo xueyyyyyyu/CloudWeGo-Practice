@@ -204,8 +204,9 @@ type Student struct {
 	ID      int32    `thrift:"id,1,required" form:"id,required" json:"id,required"`
 	Name    string   `thrift:"name,2,required" form:"name,required" json:"name,required"`
 	Sex     string   `thrift:"sex,3,required" form:"sex,required" json:"sex,required"`
-	College *College `thrift:"college,4,required" form:"college,required" json:"college,required"`
-	Email   []string `thrift:"email,5,optional" form:"email" json:"email,omitempty"`
+	Age     int32    `thrift:"age,4,required" form:"age,required" json:"age,required"`
+	College *College `thrift:"college,5,required" form:"college,required" json:"college,required"`
+	Email   []string `thrift:"email,6,optional" form:"email" json:"email,omitempty"`
 }
 
 func NewStudent() *Student {
@@ -222,6 +223,10 @@ func (p *Student) GetName() (v string) {
 
 func (p *Student) GetSex() (v string) {
 	return p.Sex
+}
+
+func (p *Student) GetAge() (v int32) {
+	return p.Age
 }
 
 var Student_College_DEFAULT *College
@@ -246,8 +251,9 @@ var fieldIDToName_Student = map[int16]string{
 	1: "id",
 	2: "name",
 	3: "sex",
-	4: "college",
-	5: "email",
+	4: "age",
+	5: "college",
+	6: "email",
 }
 
 func (p *Student) IsSetCollege() bool {
@@ -265,6 +271,7 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 	var issetID bool = false
 	var issetName bool = false
 	var issetSex bool = false
+	var issetAge bool = false
 	var issetCollege bool = false
 
 	if _, err = iprot.ReadStructBegin(); err != nil {
@@ -315,8 +322,19 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 				}
 			}
 		case 4:
-			if fieldTypeId == thrift.STRUCT {
+			if fieldTypeId == thrift.I32 {
 				if err = p.ReadField4(iprot); err != nil {
+					goto ReadFieldError
+				}
+				issetAge = true
+			} else {
+				if err = iprot.Skip(fieldTypeId); err != nil {
+					goto SkipFieldError
+				}
+			}
+		case 5:
+			if fieldTypeId == thrift.STRUCT {
+				if err = p.ReadField5(iprot); err != nil {
 					goto ReadFieldError
 				}
 				issetCollege = true
@@ -325,9 +343,9 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 					goto SkipFieldError
 				}
 			}
-		case 5:
+		case 6:
 			if fieldTypeId == thrift.LIST {
-				if err = p.ReadField5(iprot); err != nil {
+				if err = p.ReadField6(iprot); err != nil {
 					goto ReadFieldError
 				}
 			} else {
@@ -364,8 +382,13 @@ func (p *Student) Read(iprot thrift.TProtocol) (err error) {
 		goto RequiredFieldNotSetError
 	}
 
-	if !issetCollege {
+	if !issetAge {
 		fieldId = 4
+		goto RequiredFieldNotSetError
+	}
+
+	if !issetCollege {
+		fieldId = 5
 		goto RequiredFieldNotSetError
 	}
 	return nil
@@ -414,6 +437,15 @@ func (p *Student) ReadField3(iprot thrift.TProtocol) error {
 }
 
 func (p *Student) ReadField4(iprot thrift.TProtocol) error {
+	if v, err := iprot.ReadI32(); err != nil {
+		return err
+	} else {
+		p.Age = v
+	}
+	return nil
+}
+
+func (p *Student) ReadField5(iprot thrift.TProtocol) error {
 	p.College = NewCollege()
 	if err := p.College.Read(iprot); err != nil {
 		return err
@@ -421,7 +453,7 @@ func (p *Student) ReadField4(iprot thrift.TProtocol) error {
 	return nil
 }
 
-func (p *Student) ReadField5(iprot thrift.TProtocol) error {
+func (p *Student) ReadField6(iprot thrift.TProtocol) error {
 	_, size, err := iprot.ReadListBegin()
 	if err != nil {
 		return err
@@ -467,6 +499,10 @@ func (p *Student) Write(oprot thrift.TProtocol) (err error) {
 		}
 		if err = p.writeField5(oprot); err != nil {
 			fieldId = 5
+			goto WriteFieldError
+		}
+		if err = p.writeField6(oprot); err != nil {
+			fieldId = 6
 			goto WriteFieldError
 		}
 
@@ -540,10 +576,10 @@ WriteFieldEndError:
 }
 
 func (p *Student) writeField4(oprot thrift.TProtocol) (err error) {
-	if err = oprot.WriteFieldBegin("college", thrift.STRUCT, 4); err != nil {
+	if err = oprot.WriteFieldBegin("age", thrift.I32, 4); err != nil {
 		goto WriteFieldBeginError
 	}
-	if err := p.College.Write(oprot); err != nil {
+	if err := oprot.WriteI32(p.Age); err != nil {
 		return err
 	}
 	if err = oprot.WriteFieldEnd(); err != nil {
@@ -557,8 +593,25 @@ WriteFieldEndError:
 }
 
 func (p *Student) writeField5(oprot thrift.TProtocol) (err error) {
+	if err = oprot.WriteFieldBegin("college", thrift.STRUCT, 5); err != nil {
+		goto WriteFieldBeginError
+	}
+	if err := p.College.Write(oprot); err != nil {
+		return err
+	}
+	if err = oprot.WriteFieldEnd(); err != nil {
+		goto WriteFieldEndError
+	}
+	return nil
+WriteFieldBeginError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+WriteFieldEndError:
+	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+}
+
+func (p *Student) writeField6(oprot thrift.TProtocol) (err error) {
 	if p.IsSetEmail() {
-		if err = oprot.WriteFieldBegin("email", thrift.LIST, 5); err != nil {
+		if err = oprot.WriteFieldBegin("email", thrift.LIST, 6); err != nil {
 			goto WriteFieldBeginError
 		}
 		if err := oprot.WriteListBegin(thrift.STRING, len(p.Email)); err != nil {
@@ -578,9 +631,9 @@ func (p *Student) writeField5(oprot thrift.TProtocol) (err error) {
 	}
 	return nil
 WriteFieldBeginError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 begin error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 begin error: ", p), err)
 WriteFieldEndError:
-	return thrift.PrependError(fmt.Sprintf("%T write field 5 end error: ", p), err)
+	return thrift.PrependError(fmt.Sprintf("%T write field 6 end error: ", p), err)
 }
 
 func (p *Student) String() string {

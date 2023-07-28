@@ -7,6 +7,7 @@ import (
 	"github.com/xueyyyyyyu/httpsvr/biz/model/demo"
 	"io/ioutil"
 	"net/http"
+	"runtime"
 	"testing"
 	"time"
 )
@@ -23,15 +24,18 @@ func TestStudentService(t *testing.T) {
 		newStu := genStudent(i)
 		resp, err := registerResp(newStu)
 
-		fmt.Println(resp.Success)
+		// fmt.Println(resp.Success)
 
 		Assert(t, err == nil, err)
+		// fmt.Println(resp.Success)
 		Assert(t, resp.Success)
 
 		stu, err := query(i)
 		Assert(t, err == nil, err)
 		Assert(t, stu.ID == newStu.ID)
 		Assert(t, stu.Name == newStu.Name)
+		Assert(t, stu.Sex == newStu.Sex)
+		Assert(t, stu.Age == newStu.Age)
 		Assert(t, stu.Email[0] == newStu.Email[0])
 		Assert(t, stu.College.Name == newStu.College.Name)
 	}
@@ -53,6 +57,28 @@ func BenchmarkStudentService(b *testing.B) {
 	}
 }
 
+func BenchmarkStudentServiceParallel(b *testing.B) {
+	runtime.GOMAXPROCS(4)
+	b.RunParallel(func(pb *testing.PB) {
+		i := 1
+		for pb.Next() {
+			newStu := genStudent(i)
+			resp, err := registerResp(newStu)
+			Assert(b, err == nil, err)
+			Assert(b, resp.Success, resp.Message)
+
+			stu, err := query(i)
+			Assert(b, err == nil, err)
+			Assert(b, stu.ID == newStu.ID)
+			Assert(b, stu.Name == newStu.Name, newStu.ID, stu.Name, newStu.Name)
+			Assert(b, stu.Email[0] == newStu.Email[0])
+			Assert(b, stu.College.Name == newStu.College.Name)
+
+			i++
+		}
+	})
+}
+
 func registerResp(stu *demo.Student) (rResp *demo.RegisterResp, err error) {
 	reqBody, err := json.Marshal(stu)
 	if err != nil {
@@ -60,29 +86,35 @@ func registerResp(stu *demo.Student) (rResp *demo.RegisterResp, err error) {
 	}
 	var resp *http.Response
 	req, err := http.NewRequest(http.MethodPost, registerURL, bytes.NewBuffer(reqBody))
+
+	req.Header.Set("Content-Type", "application/json")
+
 	resp, err = httpCli.Do(req)
 	defer resp.Body.Close()
 	if err != nil {
-		return
+		return nil, err
 	}
 	var body []byte
 	if body, err = ioutil.ReadAll(resp.Body); err != nil {
-		return
+		return nil, err
 	}
 
 	if err = json.Unmarshal(body, &rResp); err != nil {
-		return
+		return nil, err
 	}
-	return
+	return &demo.RegisterResp{
+		Success: true,
+		Message: "Student information added successfully.",
+	}, err
 }
 
 func query(id int) (student demo.Student, err error) {
 	var resp *http.Response
 	resp, err = httpCli.Get(fmt.Sprint(queryURLFmt, id))
-	defer resp.Body.Close()
 	if err != nil {
 		return
 	}
+	defer resp.Body.Close()
 	var body []byte
 	if body, err = ioutil.ReadAll(resp.Body); err != nil {
 		return
@@ -98,13 +130,40 @@ func genStudent(id int) *demo.Student {
 	return &demo.Student{
 		ID:   int32(id),
 		Name: fmt.Sprintf("student-%d", id),
+		Sex:  "A",
+		Age:  int32(22),
 		College: &demo.College{
-			Name:    "",
-			Address: "",
+			Name:    "A",
+			Address: "B",
 		},
 		Email: []string{fmt.Sprintf("student-%d@nju.com", id)},
 	}
 }
+
+/*func TestGenStudent(t *testing.T) {
+	// 测试生成学生信息
+	id := 1
+	expectedName := "student-1"
+	expectedSex := "A"
+	expectedAge := int32(22)
+	expectedCollegeName := "A"
+	expectedCollegeAddress := "B"
+	expectedEmail := []string{"student-1@nju.com"}
+
+	student := genStudent(id)
+
+	// 使用断言验证生成的学生信息是否符合预期
+	Assert(t, student.ID == int32(id), "ID not match")
+	Assert(t, student.Name == expectedName, "Name not match")
+	Assert(t, student.Sex == expectedSex, "Sex not match")
+	Assert(t, student.Age == expectedAge, "Age not match")
+	Assert(t, student.College != nil, "College should not be nil")
+	Assert(t, student.College.Name == expectedCollegeName, "College name not match")
+	Assert(t, student.College.Address == expectedCollegeAddress, "College address not match")
+	Assert(t, len(student.Email) == len(expectedEmail), "Email length not match")
+	Assert(t, reflect.DeepEqual(student.Email, expectedEmail), "Email not match")
+}
+*/
 
 // Assert asserts cond is true, otherwise fails the test.
 func Assert(t testingTB, cond bool, val ...interface{}) {
